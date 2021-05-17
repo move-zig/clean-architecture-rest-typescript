@@ -2,6 +2,7 @@ import { Connection, Repository as TypeOrmRepository } from 'typeorm';
 
 import { Comment } from '../../domain/comment';
 import { PersistedComment } from '../../domain/persistedComment';
+import { PersistedPoster } from '../../domain/persistedPoster';
 import { Poster } from '../../domain/poster';
 import { Comment as CommentEntity } from '../../frameworks/typeorm/entities/comment';
 import { Poster as PosterEntity } from '../../frameworks/typeorm/entities/poster';
@@ -24,7 +25,7 @@ export class Repository implements IRepository {
     this.posterRepository = connection.getRepository(PosterEntity);
   }
 
-  public async loadPoster(posterId: number): Promise<Poster | undefined> {
+  public async loadPoster(posterId: number): Promise<PersistedPoster | undefined> {
     let posterEntity: PosterEntity | undefined;
     try {
       posterEntity = await this.posterRepository.findOne(posterId);
@@ -32,7 +33,7 @@ export class Repository implements IRepository {
       throw new RepositoryError('could not load poster');
     }
     if (posterEntity) {
-      return new Poster({
+      return new PersistedPoster({
         id: posterEntity.id,
         name: posterEntity.name,
         disabled: posterEntity.disabled,
