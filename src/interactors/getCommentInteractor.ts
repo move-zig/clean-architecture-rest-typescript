@@ -1,4 +1,4 @@
-import { IRepository } from '../adapters/gateways/repository';
+import { ICommentRepository } from '../adapters/gateways/commentRepository';
 import { Result, ResultType } from './result';
 import { IInteractor } from '.';
 
@@ -9,16 +9,16 @@ export type GetCommentResponseDTO = {
   text: string;
 };
 
-export class GetCommentInteractorNotFoundError extends Error {}
+export class GetCommentNotFound extends Error {}
 
 export class GetCommentInteractor implements IInteractor<number, GetCommentResponseDTO> {
-  public constructor(private readonly repository: IRepository) { /* empty */ }
+  public constructor(private readonly commentRepository: ICommentRepository) { /* empty */ }
 
   public async execute(commentId: number): Promise<ResultType<GetCommentResponseDTO>> {
     try {
-      const comment = await this.repository.loadComment(commentId);
+      const comment = await this.commentRepository.load(commentId);
       if (typeof comment === 'undefined') {
-        return Result.fail(new GetCommentInteractorNotFoundError());
+        return Result.fail(new GetCommentNotFound());
       }
       return Result.success({
         id: comment.id,

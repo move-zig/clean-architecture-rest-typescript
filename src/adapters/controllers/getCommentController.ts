@@ -1,5 +1,5 @@
 import { interactors } from '../../interactors';
-import { GetCommentInteractorNotFoundError } from '../../interactors/getCommentInteractor';
+import { GetCommentNotFound } from '../../interactors/getCommentInteractor';
 import { BaseController } from './baseController';
 
 export class GetCommentController extends BaseController {
@@ -14,7 +14,7 @@ export class GetCommentController extends BaseController {
       this.ok(result.value);
     } else {
       switch (result.error.constructor) {
-        case GetCommentInteractorNotFoundError:
+        case GetCommentNotFound:
           return this.notFound('Comment not found');
         default:
           return this.internalServerError(result.error.message);

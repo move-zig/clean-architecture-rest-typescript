@@ -1,5 +1,5 @@
 import { interactors } from '../../interactors';
-import { GetAllCommentsByPosterInteractorInvalidArgument, GetAllCommentsByPosterInteractorNotFoundError } from '../../interactors/getAllCommentsByPoster';
+import { GetAllCommentsByPosterInvalidId, GetAllCommentsByPosterNotFound } from '../../interactors/getAllCommentsByPoster';
 import { BaseController } from './baseController';
 
 export class GetAllCommentsByPosterController extends BaseController {
@@ -17,9 +17,9 @@ export class GetAllCommentsByPosterController extends BaseController {
       this.ok(result.value);
     } else {
       switch (result.error.constructor) {
-        case GetAllCommentsByPosterInteractorInvalidArgument:
+        case GetAllCommentsByPosterInvalidId:
           return this.badRequest('No poster specified');
-        case GetAllCommentsByPosterInteractorNotFoundError:
+        case GetAllCommentsByPosterNotFound:
           return this.notFound('Poster not found');
         default:
           return this.internalServerError(result.error.message);

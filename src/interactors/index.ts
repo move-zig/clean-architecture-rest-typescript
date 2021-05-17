@@ -8,8 +8,8 @@ export interface IInteractor<RequestDTO, ResponseDTO> {
   execute: (arg: RequestDTO) => ResultType<ResponseDTO> | Promise<ResultType<ResponseDTO>>;
 }
 
-export const interactors = repository.then(r => ({
-  postCommentInteractor: new PostCommentInteractor(r),
-  getCommentInteractor: new GetCommentInteractor(r),
-  getAllCommentsByPosterInteractor: new GetAllCommentsByPosterInteractor(r),
+export const interactors = repository.then(({ posterRepository, commentRepository }) => ({
+  postCommentInteractor: new PostCommentInteractor(commentRepository, posterRepository),
+  getCommentInteractor: new GetCommentInteractor(commentRepository),
+  getAllCommentsByPosterInteractor: new GetAllCommentsByPosterInteractor(commentRepository),
 }));

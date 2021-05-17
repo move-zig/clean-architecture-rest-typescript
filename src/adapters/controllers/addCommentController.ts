@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import { interactors } from '../../interactors';
-import { PostCommentInteractorNotAllowedtoPostError, PostCommentInteractorNotFoundError, PostCommentRequestDTO } from '../../interactors/postCommentInteractor';
+import { PostCommentNotAllowedtoPost, PostCommentNotFound, PostCommentRequestDTO } from '../../interactors/postCommentInteractor';
 import { BaseController } from './baseController';
 
 export class AddCommentController extends BaseController {
@@ -27,10 +27,10 @@ export class AddCommentController extends BaseController {
       this.ok(result.value);
     } else {
       switch (result.error.constructor) {
-        case PostCommentInteractorNotAllowedtoPostError:
+        case PostCommentNotAllowedtoPost:
           return this.badRequest('Poster is not allowed to post comments');
-        case PostCommentInteractorNotFoundError:
-          return this.badRequest('invalid posted');
+        case PostCommentNotFound:
+          return this.notFound('invalid poster');
         default:
           return this.internalServerError(result.error.message);
       }

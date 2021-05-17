@@ -2,20 +2,17 @@ import { Connection, Repository as TypeOrmRepository } from 'typeorm';
 
 import { Comment } from '../../domain/comment';
 import { PersistedComment } from '../../domain/persistedComment';
-import { PersistedPoster } from '../../domain/persistedPoster';
-import { Poster } from '../../domain/poster';
 import { Comment as CommentEntity } from '../../frameworks/typeorm/entities/comment';
 import { Poster as PosterEntity } from '../../frameworks/typeorm/entities/poster';
 import { RepositoryError } from './repositoryError';
 
-export interface IRepository {
-  loadPoster: (posterId: number) => Promise<Poster | undefined>;
-  loadComment: (commentId: number) => Promise<PersistedComment | undefined>;
-  addComment: (comment: Comment) => Promise<PersistedComment>;
-  loadCommentsByPoster: (posterId: number) => Promise<PersistedComment[] | undefined>;
+export interface ICommentRepository {
+  load: (commentId: number) => Promise<PersistedComment | undefined>;
+  add: (comment: Comment) => Promise<PersistedComment>;
+  loadAllByPoster: (posterId: number) => Promise<PersistedComment[] | undefined>;
 }
 
-export class Repository implements IRepository {
+export class CommentRepository implements ICommentRepository {
 
   private readonly commentRepository: TypeOrmRepository<CommentEntity>;
   private readonly posterRepository: TypeOrmRepository<PosterEntity>;
@@ -25,23 +22,7 @@ export class Repository implements IRepository {
     this.posterRepository = connection.getRepository(PosterEntity);
   }
 
-  public async loadPoster(posterId: number): Promise<PersistedPoster | undefined> {
-    let posterEntity: PosterEntity | undefined;
-    try {
-      posterEntity = await this.posterRepository.findOne(posterId);
-    } catch (err) {
-      throw new RepositoryError('could not load poster');
-    }
-    if (posterEntity) {
-      return new PersistedPoster({
-        id: posterEntity.id,
-        name: posterEntity.name,
-        disabled: posterEntity.disabled,
-      });
-    }
-  }
-
-  public async loadComment(commentId: number): Promise<PersistedComment | undefined> {
+  public async load(commentId: number): Promise<PersistedComment | undefined> {
     let commentEntity: CommentEntity | undefined;
     try {
       commentEntity = await this.commentRepository.findOne(commentId);
@@ -58,7 +39,7 @@ export class Repository implements IRepository {
     }
   }
 
-  public async addComment(comment: Comment): Promise<PersistedComment> {
+  public async add(comment: Comment): Promise<PersistedComment> {
     const commentEntity = new CommentEntity();
     commentEntity.posterId = comment.posterId;
     commentEntity.parentId = comment.parentId ?? null;
@@ -77,7 +58,7 @@ export class Repository implements IRepository {
     });
   }
 
-  public async loadCommentsByPoster(posterId: number): Promise<PersistedComment[] | undefined> {
+  public async loadAllByPoster(posterId: number): Promise<PersistedComment[] | undefined> {
     let posterEntity: PosterEntity | undefined;
     try {
       posterEntity = await this.posterRepository.findOne(posterId);
