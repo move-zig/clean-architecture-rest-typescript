@@ -1,4 +1,4 @@
-import { interactors } from '../../interactors';
+import { getAllCommentsByPosterInteractor } from '../../interactors';
 import { GetAllCommentsByPosterInvalidId, GetAllCommentsByPosterNotFound } from '../../interactors/getAllCommentsByPoster';
 import { BaseController } from './baseController';
 
@@ -10,8 +10,7 @@ export class GetAllCommentsByPosterController extends BaseController {
       posterId = parseInt(this.req.query.posterId, 10);
     }
 
-    const { getAllCommentsByPosterInteractor } = await interactors;
-    const result = await getAllCommentsByPosterInteractor.execute(posterId);
+    const result = await (await getAllCommentsByPosterInteractor).execute(posterId);
 
     if (result.success) {
       this.ok(result.value);

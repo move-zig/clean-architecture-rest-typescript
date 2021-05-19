@@ -1,4 +1,4 @@
-import { interactors } from '../../interactors';
+import { getCommentInteractor } from '../../interactors';
 import { GetCommentNotFound } from '../../interactors/getCommentInteractor';
 import { BaseController } from './baseController';
 
@@ -7,8 +7,7 @@ export class GetCommentController extends BaseController {
   protected async executeImpl(): Promise<void> {
     const commentId = parseInt(this.req.params.commentId, 10);
 
-    const { getCommentInteractor } = await interactors;
-    const result = await getCommentInteractor.execute(commentId);
+    const result = await (await getCommentInteractor).execute(commentId);
 
     if (result.success) {
       this.ok(result.value);

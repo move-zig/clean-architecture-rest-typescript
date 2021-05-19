@@ -6,15 +6,23 @@ export class Poster {
   @PrimaryGeneratedColumn()
   id!: number;
 
+  /** a date string 'yyyy-mm-dd' */
   @Column({
     type: 'date',
   })
-  signUpDate!: Date;
+  signUpDate!: string;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    length: 191,
+  })
   name!: string;
 
-  @Column()
+  @Column({
+    type: 'boolean',
+    width: 1,
+    default: 0,
+  })
   disabled!: boolean;
 
   @OneToMany(() => Comment, comment => comment.poster)

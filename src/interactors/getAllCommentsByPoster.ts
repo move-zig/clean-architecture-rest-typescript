@@ -1,4 +1,5 @@
-import { ICommentRepository } from '../adapters/gateways/commentRepository';
+import { ILogger } from '../adapters/loggers';
+import { ICommentRepository } from '../adapters/repositories/commentRepository';
 import { Result, ResultType } from './result';
 import { IInteractor } from '.';
 
@@ -13,7 +14,11 @@ export class GetAllCommentsByPosterNotFound extends Error {}
 export class GetAllCommentsByPosterInvalidId extends Error {}
 
 export class GetAllCommentsByPosterInteractor implements IInteractor<number, GetAllCommentsByPosterResponseDTO> {
-  public constructor(private readonly commentRepository: ICommentRepository) { /* empty */ }
+
+  public constructor(
+    private readonly commentRepository: ICommentRepository,
+    private readonly logger: ILogger,
+  ) { /* empty */ }
 
   public async execute(posterId?: number): Promise<ResultType<GetAllCommentsByPosterResponseDTO>> {
     try {
@@ -32,8 +37,10 @@ export class GetAllCommentsByPosterInteractor implements IInteractor<number, Get
       })));
     } catch (err: unknown) {
       if (err instanceof Error) {
+        this.logger.error('error getting all comments by poster', err);
         return Result.fail(err);
       }
+      this.logger.error('error getting all comments by poster', err);
       return Result.fail(Error('unknown error'));
     }
   }

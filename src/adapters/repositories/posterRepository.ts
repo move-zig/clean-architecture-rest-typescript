@@ -23,12 +23,13 @@ export class PosterRepository implements IPosterRepository {
     } catch (err) {
       throw new RepositoryError('could not load comment');
     }
+    console.log(posterEntity);
     if (posterEntity) {
       return new PersistedPoster({
         id: posterEntity.id,
         name: posterEntity.name,
         disabled: posterEntity.disabled,
-        signUpDate: posterEntity.signUpDate,
+        signUpDate: new Date(posterEntity.signUpDate),
       });
     }
   }

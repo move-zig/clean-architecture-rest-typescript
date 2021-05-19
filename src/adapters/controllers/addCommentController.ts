@@ -1,39 +1,46 @@
 import * as yup from 'yup';
 
-import { interactors } from '../../interactors';
-import { PostCommentNotAllowedtoPost, PostCommentNotFound, PostCommentRequestDTO } from '../../interactors/postCommentInteractor';
+import { postCommentInteractor } from '../../interactors';
+import { PostCommentInteractor, PostCommentInvalidData, PostCommentNotAllowedtoPost, PostCommentRequestDTO } from '../../interactors/postCommentInteractor';
 import { BaseController } from './baseController';
 
 export class AddCommentController extends BaseController {
 
   protected async executeImpl(): Promise<void> {
-    const schema = yup.object({
-      posterId: yup.number().required(),
-      text: yup.string().required(),
-      parentId: yup.number(),
-    });
-    const body = await schema.validate(this.req.body);
+    let requestDTO: PostCommentRequestDTO;
+    try {
+      const schema: yup.SchemaOf<PostCommentRequestDTO> = yup.object({
+        postId: yup.number().positive().defined(),
+        posterId: yup.number().positive().defined(),
+        text: yup.string().defined(),
+        parentId: yup.number(),
+      });
+      requestDTO = await schema.validate(this.req.body);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return this.badRequest(error.message);
+      }
+      return this.badRequest('invalid request body');
+    }
 
-    const requestDTO: PostCommentRequestDTO = {
-      posterId: body.posterId,
-      text: body.text,
-      parentId: body.parentId,
-    };
-
-    const { postCommentInteractor } = await interactors;
-    const result = await postCommentInteractor.execute(requestDTO);
+    const interactor = await this.getInteractor();
+    const result = await interactor.execute(requestDTO);
 
     if (result.success) {
       this.ok(result.value);
     } else {
       switch (result.error.constructor) {
+        case PostCommentInvalidData:
+          return this.badRequest(result.error.message);
         case PostCommentNotAllowedtoPost:
           return this.badRequest('Poster is not allowed to post comments');
-        case PostCommentNotFound:
-          return this.notFound('invalid poster');
         default:
           return this.internalServerError(result.error.message);
       }
     }
+  }
+
+  private async getInteractor(): Promise<PostCommentInteractor> {
+    return postCommentInteractor;
   }
 }

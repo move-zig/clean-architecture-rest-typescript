@@ -1,4 +1,5 @@
 import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Post } from './post';
 import { Poster } from './poster';
 
 @Entity()
@@ -6,7 +7,14 @@ export class Comment {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column()
+  @Column({
+    type: 'int',
+  })
+  postId!: number;
+
+  @Column({
+    type: 'int',
+  })
   posterId!: number;
 
   @Column({
@@ -15,15 +23,21 @@ export class Comment {
   })
   parentId!: number | null;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    length: 191,
+  })
   text!: string;
 
-  @ManyToOne(() => Poster, poster => poster.comments)
-  poster!: Poster;
+  @ManyToOne(() => Post, post => post.comments)
+  post?: Post;
 
-  @ManyToOne(() => Comment, comment => comment.children)
-  parent!: Comment;
+  @ManyToOne(() => Poster, poster => poster.comments)
+  poster?: Poster;
+
+  @ManyToOne(() => Comment, comment => comment.children, { nullable: true })
+  parent?: Comment | null;
 
   @OneToMany(() => Comment, comment => comment.parent)
-  children!: Comment[];
+  children?: Comment[];
 }

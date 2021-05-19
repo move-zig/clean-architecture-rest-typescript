@@ -27,6 +27,8 @@ export class Poster implements IPoster {
   }
 
   public canPost(): boolean {
+    console.log(this.getAge());
+    console.log(this.#disabled);
     return this.getAge() > Poster.minAgeToPost && this.#disabled === false;
   }
 }

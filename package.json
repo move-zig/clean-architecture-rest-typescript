@@ -15,6 +15,8 @@
   "author": "Dave Welsh",
   "license": "ISC",
   "devDependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.13.0",
+    "@babel/plugin-proposal-decorators": "^7.14.2",
     "@babel/preset-env": "^7.14.2",
     "@babel/preset-typescript": "^7.13.0",
     "@types/faker": "^5.5.5",
@@ -27,6 +29,7 @@
     "eslint-plugin-promise": "^5.1.0",
     "faker": "^5.5.3",
     "jest": "^26.6.3",
+    "ts-jest": "^26.5.6",
     "typescript": "^4.2.4"
   },
   "dependencies": {
@@ -36,6 +39,7 @@
     "mysql": "^2.18.1",
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.2.32",
+    "winston": "^3.3.3",
     "yup": "^0.32.9"
   }
 }
