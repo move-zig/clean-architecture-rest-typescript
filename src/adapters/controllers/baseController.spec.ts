@@ -3,24 +3,63 @@ import faker from 'faker';
 
 import { BaseController } from './baseController';
 
+type RequestDTO = {
+  color: string;
+};
+
 /**
  * BaseController is an abstract class. In order to test its methods
  * we need to create a new class that extends BaseClass.
- *
- * Because most of the methods we want to test are protected, we will
- * call them indirectly through the new class's executeImpl method.
- * executeImpl is also protected and is called indirectly via
- * BaseController's public execute method.
  */
+class MockController extends BaseController<RequestDTO> {
+
+  public async validate(): Promise<RequestDTO | false> {
+    return Promise.resolve(false);
+  }
+
+  public async executeImpl(requestDTO: RequestDTO): Promise<void> {
+    return Promise.resolve(undefined);
+  }
+
+  /** provide access to the parent's ok method */
+  public callOk(value: unknown) {
+    this.ok(value);
+  }
+
+  /** provide access to the parent's created method */
+  public callCreated(value: unknown) {
+    this.created(value);
+  }
+
+  /** provide access to the parent's noContent method */
+  public callNoContent() {
+    this.noContent();
+  }
+
+  /** provide access to the parent's badRequest method */
+  public callBadRequest(value?: string) {
+    this.badRequest(value);
+  }
+
+  /** provide access to the parent's unauthorized method */
+  public callUnauthorized(value?: string) {
+    this.unauthorized(value);
+  }
+}
 
 describe('BaseController', () => {
-  let controller: any;
+  let controller: MockController;
+  let validate: jest.SpyInstance;
+  let executeImpl: jest.SpyInstance;
+
   let req: Request;
   let res: Response;
 
   beforeEach(() => {
-    controller = Object.create(BaseController.prototype);
-    req = { } as unknown as Request;
+    controller = new MockController();
+    validate = jest.spyOn(controller, 'validate');
+    executeImpl = jest.spyOn(controller, 'executeImpl');
+    req = {} as unknown as Request;
     res = {
       status: jest.fn().mockReturnThis(),
       send: jest.fn(),
@@ -30,48 +69,55 @@ describe('BaseController', () => {
 
   describe('execute method', () => {
 
-    it('should call the executeImpl method', () => {
-      controller.executeImpl = async function () {
-        return Promise.resolve(undefined);
-      };
-      jest.spyOn(controller, 'executeImpl');
+    describe('when validate resolves to false', () => {
 
-      controller.execute(req, res);
-      expect(controller.executeImpl).toHaveBeenCalledTimes(1);
+      beforeEach(() => {
+        validate.mockResolvedValue(false);
+      });
+
+      it('should not call the executeImpl method', async () => {
+        await controller.execute(req, res);
+        expect(executeImpl).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when validate resolves to any other value', () => {
+      let request: RequestDTO;
+
+      beforeEach(() => {
+        request = { color: 'blue' };
+        validate.mockResolvedValue(request);
+      });
+
+      it('should call the executeImpl method with the correct parameters', async () => {
+        await controller.execute(req, res);
+        expect(executeImpl).toHaveBeenCalledTimes(1);
+        expect(executeImpl).toHaveBeenCalledWith(request);
+      });
     });
   });
 
   describe('ok method', () => {
-    it('should send the correct response', () => {
+    it('should send the correct response', async () => {
       const data = {
         id: faker.datatype.number(),
         message: faker.random.words(10),
       };
-
-      controller.executeImpl = async function () {
-        return Promise.resolve(this.ok(data));
-      };
-      jest.spyOn(controller, 'executeImpl');
-
-      controller.execute(req, res);
+      await controller.execute(req, res);
+      controller.callOk(data);
       expect(res.send).toHaveBeenCalledTimes(1);
       expect(res.send).toHaveBeenCalledWith(data);
     });
   });
 
   describe('created method', () => {
-    it('should send the correct response', () => {
+    it('should send the correct response', async () => {
       const data = {
         id: faker.datatype.number(),
         message: faker.random.words(10),
       };
-
-      controller.executeImpl = async function () {
-        return Promise.resolve(this.created(data));
-      };
-      jest.spyOn(controller, 'executeImpl');
-
-      controller.execute(req, res);
+      await controller.execute(req, res);
+      controller.callCreated(data);
       expect(res.status).toHaveBeenCalledTimes(1);
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.send).toHaveBeenCalledTimes(1);
@@ -80,18 +126,9 @@ describe('BaseController', () => {
   });
 
   describe('noContent method', () => {
-    it('should send the correct response', () => {
-      const data = {
-        id: faker.datatype.number(),
-        message: faker.random.words(10),
-      };
-
-      controller.executeImpl = async function () {
-        return Promise.resolve(this.noContent(data));
-      };
-      jest.spyOn(controller, 'executeImpl');
-
-      controller.execute(req, res);
+    it('should send the correct response', async () => {
+      await controller.execute(req, res);
+      controller.callNoContent();
       expect(res.status).toHaveBeenCalledTimes(1);
       expect(res.status).toHaveBeenCalledWith(204);
       expect(res.end).toHaveBeenCalledTimes(1);
@@ -100,28 +137,19 @@ describe('BaseController', () => {
   });
 
   describe('badRequest method', () => {
-    it('should send the correct response when a message is passed', () => {
+    it('should send the correct response when a message is passed', async () => {
+      await controller.execute(req, res);
       const message = faker.random.words();
-
-      controller.executeImpl = async function () {
-        return Promise.resolve(this.badRequest(message));
-      };
-      jest.spyOn(controller, 'executeImpl');
-
-      controller.execute(req, res);
+      controller.callBadRequest(message);
       expect(res.status).toHaveBeenCalledTimes(1);
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.send).toHaveBeenCalledTimes(1);
       expect(res.send).toHaveBeenCalledWith(message);
     });
 
-    it('should send the correct response when no message is passed', () => {
-      controller.executeImpl = async function () {
-        return Promise.resolve(this.badRequest());
-      };
-      jest.spyOn(controller, 'executeImpl');
-
-      controller.execute(req, res);
+    it('should send the correct response when no message is passed', async () => {
+      await controller.execute(req, res);
+      controller.callBadRequest();
       expect(res.status).toHaveBeenCalledTimes(1);
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.send).toHaveBeenCalledTimes(1);
@@ -130,28 +158,19 @@ describe('BaseController', () => {
   });
 
   describe('unauthorized method', () => {
-    it('should send the correct response when a message is passed', () => {
+    it('should send the correct response when a message is passed', async () => {
+      await controller.execute(req, res);
       const message = faker.random.words();
-
-      controller.executeImpl = async function () {
-        return Promise.resolve(this.unauthorized(message));
-      };
-      jest.spyOn(controller, 'executeImpl');
-
-      controller.execute(req, res);
+      controller.callUnauthorized(message);
       expect(res.status).toHaveBeenCalledTimes(1);
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.send).toHaveBeenCalledTimes(1);
       expect(res.send).toHaveBeenCalledWith(message);
     });
 
-    it('should send the correct response when no message is passed', () => {
-      controller.executeImpl = async function () {
-        return Promise.resolve(this.unauthorized());
-      };
-      jest.spyOn(controller, 'executeImpl');
-
-      controller.execute(req, res);
+    it('should send the correct response when no message is passed', async () => {
+      await controller.execute(req, res);
+      controller.callUnauthorized();
       expect(res.status).toHaveBeenCalledTimes(1);
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.send).toHaveBeenCalledTimes(1);

@@ -3,6 +3,10 @@ import { ICommentRepository } from '../adapters/repositories/commentRepository';
 import { Result, ResultType } from './result';
 import { IInteractor } from '.';
 
+export type GetCommentRequestDTO = {
+  commentId: number;
+};
+
 export type GetCommentResponseDTO = {
   id: number;
   posterId: number;
@@ -13,14 +17,14 @@ export type GetCommentResponseDTO = {
 
 export class GetCommentNotFound extends Error { }
 
-export class GetCommentInteractor implements IInteractor<number, GetCommentResponseDTO> {
+export class GetCommentInteractor implements IInteractor<GetCommentRequestDTO, GetCommentResponseDTO> {
 
   public constructor(
     private readonly commentRepository: ICommentRepository,
     private readonly logger: ILogger,
   ) { /* empty */ }
 
-  public async execute(commentId: number): Promise<ResultType<GetCommentResponseDTO>> {
+  public async execute({ commentId }: GetCommentRequestDTO): Promise<ResultType<GetCommentResponseDTO>> {
     try {
       const comment = await this.commentRepository.loadWithChildren(commentId);
       if (typeof comment === 'undefined') {

@@ -1,7 +1,7 @@
 import faker from 'faker';
 import { PersistedComment } from '../domain/persistedComment';
 
-import { GetAllCommentsByPosterInteractor, GetAllCommentsByPosterInvalidId, GetAllCommentsByPosterNotFound, GetAllCommentsByPosterResponseDTO } from './getAllCommentsByPoster';
+import { GetAllCommentsByPosterInteractor, GetAllCommentsByPosterNotFound, GetAllCommentsByPosterRequestDTO, GetAllCommentsByPosterResponseDTO } from './getAllCommentsByPoster';
 import { IErrorResult, ISuccessResult } from './result';
 
 describe('GetAllCommentsByPosterInteractor', () => {
@@ -17,84 +17,70 @@ describe('GetAllCommentsByPosterInteractor', () => {
   });
 
   describe('execute method', () => {
-    let argument: number | undefined;
+    let requestDTO: GetAllCommentsByPosterRequestDTO;
 
-    describe('when passed undefined', () => {
+    beforeEach(() => {
+      requestDTO = {
+        posterId: faker.datatype.number(),
+      };
+    });
+
+    describe('when commentRepository.loadAllByPoster rejects', () => {
+      let error: Error;
 
       beforeEach(() => {
-        argument = undefined;
+        error = Error(faker.random.words(10));
+        commentRepository.loadAllByPoster.mockRejectedValue(error);
       });
 
-      it('should return a failure result', async () => {
-        const result = await interactor.execute(argument) as IErrorResult;
+      it('should log the error and return a failure result', async () => {
+        const result = await interactor.execute(requestDTO) as IErrorResult;
+        expect(logger.error).toHaveBeenCalledTimes(1);
+        expect(logger.error).toHaveBeenCalledWith('error getting all comments by poster', error);
         expect(result.success).toBe(false);
-        expect(result.error).toBeInstanceOf(GetAllCommentsByPosterInvalidId);
+        expect(result.error).toBe(error);
       });
     });
 
-    describe('when passed a number', () => {
+    describe('when commentRepository.loadAllByPoster resolves undefined', () => {
 
       beforeEach(() => {
-        argument = faker.datatype.number();
+        commentRepository.loadAllByPoster.mockResolvedValue(undefined);
       });
 
-      describe('when commentRepository.loadAllByPoster rejects', () => {
-        let error: Error;
+      it('should return a failure result', async () => {
+        const result = await interactor.execute(requestDTO) as IErrorResult;
+        expect(result.success).toBe(false);
+        expect(result.error).toBeInstanceOf(GetAllCommentsByPosterNotFound);
+      });
+    });
 
-        beforeEach(() => {
-          error = Error(faker.random.words(10));
-          commentRepository.loadAllByPoster.mockRejectedValue(error);
-        });
+    describe('when commentRepository.loadAllByPoster resolves some comments', () => {
+      let id: number;
+      let postId: number;
+      let posterId: number;
+      let text: string;
+      let comments: PersistedComment[];
 
-        it('should log the error and return a failure result', async () => {
-          const result = await interactor.execute(argument) as IErrorResult;
-          expect(logger.error).toHaveBeenCalledTimes(1);
-          expect(logger.error).toHaveBeenCalledWith('error getting all comments by poster', error);
-          expect(result.success).toBe(false);
-          expect(result.error).toBe(error);
-        });
+      beforeEach(() => {
+        id = faker.datatype.number();
+        postId = faker.datatype.number();
+        posterId = faker.datatype.number();
+        text = faker.random.words(32);
+        comments = [
+          new PersistedComment({ id, postId, posterId, text, parentId: 32 }),
+          new PersistedComment({ id: id + 1, postId: postId + 23, posterId, text: text + '!!!' }),
+        ];
+        commentRepository.loadAllByPoster.mockResolvedValue(comments);
       });
 
-      describe('when commentRepository.loadAllByPoster resolves undefined', () => {
-
-        beforeEach(() => {
-          commentRepository.loadAllByPoster.mockResolvedValue(undefined);
-        });
-
-        it('should return a failure result', async () => {
-          const result = await interactor.execute(argument) as IErrorResult;
-          expect(result.success).toBe(false);
-          expect(result.error).toBeInstanceOf(GetAllCommentsByPosterNotFound);
-        });
-      });
-
-      describe('when commentRepository.loadAllByPoster resolves some comments', () => {
-        let id: number;
-        let postId: number;
-        let posterId: number;
-        let text: string;
-        let comments: PersistedComment[];
-
-        beforeEach(() => {
-          id = faker.datatype.number();
-          postId = faker.datatype.number();
-          posterId = faker.datatype.number();
-          text = faker.random.words(32);
-          comments = [
-            new PersistedComment({ id, postId, posterId, text, parentId: 32 }),
-            new PersistedComment({ id: id + 1, postId: postId + 23, posterId, text: text + '!!!' }),
-          ];
-          commentRepository.loadAllByPoster.mockResolvedValue(comments);
-        });
-
-        it('should return a success result', async () => {
-          const result = await interactor.execute(argument) as ISuccessResult<GetAllCommentsByPosterResponseDTO>;
-          expect(result.success).toBe(true);
-          expect(result.value).toEqual([
-            { id, postId, posterId, text, parentId: 32 },
-            { id: id + 1, postId: postId + 23, posterId, text: text + '!!!', parentId: undefined },
-          ]);
-        });
+      it('should return a success result', async () => {
+        const result = await interactor.execute(requestDTO) as ISuccessResult<GetAllCommentsByPosterResponseDTO>;
+        expect(result.success).toBe(true);
+        expect(result.value).toEqual([
+          { id, postId, posterId, text, parentId: 32 },
+          { id: id + 1, postId: postId + 23, posterId, text: text + '!!!', parentId: undefined },
+        ]);
       });
     });
   });

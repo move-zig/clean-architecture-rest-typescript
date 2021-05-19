@@ -1,20 +1,21 @@
 import { Request, Response } from 'express';
 
-export abstract class BaseController {
+export abstract class BaseController<RequestDTO> {
 
-  // the only way we interact with these is through the public execute
-  // method and the protected methods it calls, so we can be sure that
-  // req and res are defined
-
+  // the only way we interact with this class is through the public execute
+  // method so we can be sure that req and res are defined
   protected req!: Request;
   protected res!: Response;
 
-  /** main entry point */
+  /** Outside entry point */
   public async execute(req: Request, res: Response): Promise<void> {
     this.req = req;
     this.res = res;
 
-    await this.executeImpl();
+    const dto = await this.validate();
+    if (dto !== false) {
+      await this.executeImpl(dto);
+    }
   }
 
   // Success responses
@@ -55,6 +56,9 @@ export abstract class BaseController {
     this.res.status(500).send(message ?? 'Internal Server Error');
   }
 
-  /** controller-specific functionality */
-  protected abstract executeImpl(): Promise<void>;
+  /** Validates the input and returns a DTO if successful, false otherwise */
+  protected abstract validate(): Promise<RequestDTO | false>;
+
+  /** Calls the interactor and handles the response */
+  protected abstract executeImpl(requestDTO: RequestDTO): Promise<void>;
 }

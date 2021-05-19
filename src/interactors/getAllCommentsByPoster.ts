@@ -3,6 +3,10 @@ import { ICommentRepository } from '../adapters/repositories/commentRepository';
 import { Result, ResultType } from './result';
 import { IInteractor } from '.';
 
+export type GetAllCommentsByPosterRequestDTO = {
+  posterId: number;
+};
+
 export type GetAllCommentsByPosterResponseDTO = Array<{
   id: number;
   posterId: number;
@@ -11,21 +15,16 @@ export type GetAllCommentsByPosterResponseDTO = Array<{
 }>;
 
 export class GetAllCommentsByPosterNotFound extends Error {}
-export class GetAllCommentsByPosterInvalidId extends Error {}
 
-export class GetAllCommentsByPosterInteractor implements IInteractor<number, GetAllCommentsByPosterResponseDTO> {
+export class GetAllCommentsByPosterInteractor implements IInteractor<GetAllCommentsByPosterRequestDTO, GetAllCommentsByPosterResponseDTO> {
 
   public constructor(
     private readonly commentRepository: ICommentRepository,
     private readonly logger: ILogger,
   ) { /* empty */ }
 
-  public async execute(posterId?: number): Promise<ResultType<GetAllCommentsByPosterResponseDTO>> {
+  public async execute({ posterId }: GetAllCommentsByPosterRequestDTO): Promise<ResultType<GetAllCommentsByPosterResponseDTO>> {
     try {
-      if (!posterId) {
-        throw new GetAllCommentsByPosterInvalidId();
-      }
-
       const comments = await this.commentRepository.loadAllByPoster(posterId);
       if (typeof comments === 'undefined') {
         return Result.fail(new GetAllCommentsByPosterNotFound());
