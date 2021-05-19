@@ -25,16 +25,20 @@ export class GetAllCommentsByPosterInteractor implements IInteractor<number, Get
       if (!posterId) {
         throw new GetAllCommentsByPosterInvalidId();
       }
+
       const comments = await this.commentRepository.loadAllByPoster(posterId);
       if (typeof comments === 'undefined') {
         return Result.fail(new GetAllCommentsByPosterNotFound());
       }
-      return Result.success(comments.map(c => ({
+
+      const value: GetAllCommentsByPosterResponseDTO = comments.map(c => ({
         id: c.id,
+        postId: c.postId,
         posterId: c.posterId,
         parentId: c.parentId,
         text: c.text,
-      })));
+      }));
+      return Result.success(value);
     } catch (err: unknown) {
       if (err instanceof Error) {
         this.logger.error('error getting all comments by poster', err);

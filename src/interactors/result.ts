@@ -1,9 +1,9 @@
-interface ISuccessResult<T> {
+export interface ISuccessResult<T> {
   readonly success: true;
   readonly value: T;
 }
 
-interface IErrorResult {
+export interface IErrorResult {
   readonly success: false;
   readonly error: Error;
 }
