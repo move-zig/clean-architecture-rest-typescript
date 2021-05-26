@@ -2,16 +2,16 @@ import { Request, Response } from 'express';
 
 export abstract class BaseController<RequestDTO> {
 
-  // the only way we interact with this class is through the public execute
-  // method so we can be sure that req and res are defined
-  protected req!: Request;
-  protected res!: Response;
+  protected req: Request;
+  protected res: Response;
 
-  /** Outside entry point */
-  public async execute(req: Request, res: Response): Promise<void> {
+  public constructor(req: Request, res: Response) {
     this.req = req;
     this.res = res;
+  }
 
+  /** Outside entry point */
+  public async execute(): Promise<void> {
     const dto = await this.validate();
     if (dto !== false) {
       await this.executeImpl(dto);

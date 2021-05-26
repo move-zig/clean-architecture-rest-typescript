@@ -25,11 +25,10 @@ describe('AddCommentController', () => {
     interactor = await postCommentInteractor as unknown as { execute: jest.Mock };
   });
 
-  beforeEach(() => {
-    controller = new AddCommentController();
-  });
-
   it('should extend BaseController', () => {
+    const req = {} as Request;
+    const res = {} as Response;
+    controller = new AddCommentController(req, res);
     expect(controller).toBeInstanceOf(BaseController);
   });
 
@@ -54,10 +53,11 @@ describe('AddCommentController', () => {
         req = {
           body: { invalidData: 'pineapple' },
         } as unknown as Request;
+        controller = new AddCommentController(req, res);
       });
 
       it('should call badRequest', async () => {
-        await controller.execute(req, res);
+        await controller.execute();
         expect(badRequestSpy).toHaveBeenCalledTimes(1);
       });
     });
@@ -76,10 +76,11 @@ describe('AddCommentController', () => {
         req = {
           body: { postId, posterId, text, parentId },
         } as unknown as Request;
+        controller = new AddCommentController(req, res);
       });
 
       it('should call the interactor with the correct parameters', async () => {
-        await controller.execute(req, res);
+        await controller.execute();
         expect(interactor.execute).toHaveBeenCalledTimes(1);
         expect(interactor.execute).toHaveBeenCalledWith({ postId, posterId, text, parentId });
       });
@@ -93,7 +94,7 @@ describe('AddCommentController', () => {
         });
 
         it('should call ok', async () => {
-          await controller.execute(req, res);
+          await controller.execute();
           expect(okSpy).toHaveBeenCalledTimes(1);
           expect(okSpy).toHaveBeenCalledWith(value);
         });
@@ -110,7 +111,7 @@ describe('AddCommentController', () => {
         });
 
         it('should call badRequest', async () => {
-          await controller.execute(req, res);
+          await controller.execute();
           expect(badRequestSpy).toHaveBeenCalledTimes(1);
           expect(badRequestSpy).toHaveBeenCalledWith(message);
         });
@@ -125,7 +126,7 @@ describe('AddCommentController', () => {
         });
 
         it('should call badRequest', async () => {
-          await controller.execute(req, res);
+          await controller.execute();
           expect(badRequestSpy).toHaveBeenCalledTimes(1);
           expect(badRequestSpy).toHaveBeenCalledWith('Poster is not allowed to post comments');
         });
@@ -142,7 +143,7 @@ describe('AddCommentController', () => {
         });
 
         it('should call badRequest', async () => {
-          await controller.execute(req, res);
+          await controller.execute();
           expect(internalServerErrorSpy).toHaveBeenCalledTimes(1);
           expect(internalServerErrorSpy).toHaveBeenCalledWith(message);
         });

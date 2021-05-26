@@ -56,15 +56,15 @@ describe('BaseController', () => {
   let res: Response;
 
   beforeEach(() => {
-    controller = new MockController();
-    validate = jest.spyOn(controller, 'validate');
-    executeImpl = jest.spyOn(controller, 'executeImpl');
     req = {} as unknown as Request;
     res = {
       status: jest.fn().mockReturnThis(),
       send: jest.fn(),
       end: jest.fn(),
     } as unknown as Response;
+    controller = new MockController(req, res);
+    validate = jest.spyOn(controller, 'validate');
+    executeImpl = jest.spyOn(controller, 'executeImpl');
   });
 
   describe('execute method', () => {
@@ -76,7 +76,7 @@ describe('BaseController', () => {
       });
 
       it('should not call the executeImpl method', async () => {
-        await controller.execute(req, res);
+        await controller.execute();
         expect(executeImpl).not.toHaveBeenCalled();
       });
     });
@@ -90,7 +90,7 @@ describe('BaseController', () => {
       });
 
       it('should call the executeImpl method with the correct parameters', async () => {
-        await controller.execute(req, res);
+        await controller.execute();
         expect(executeImpl).toHaveBeenCalledTimes(1);
         expect(executeImpl).toHaveBeenCalledWith(request);
       });
@@ -103,7 +103,7 @@ describe('BaseController', () => {
         id: faker.datatype.number(),
         message: faker.random.words(10),
       };
-      await controller.execute(req, res);
+      await controller.execute();
       controller.callOk(data);
       expect(res.send).toHaveBeenCalledTimes(1);
       expect(res.send).toHaveBeenCalledWith(data);
@@ -116,7 +116,7 @@ describe('BaseController', () => {
         id: faker.datatype.number(),
         message: faker.random.words(10),
       };
-      await controller.execute(req, res);
+      await controller.execute();
       controller.callCreated(data);
       expect(res.status).toHaveBeenCalledTimes(1);
       expect(res.status).toHaveBeenCalledWith(201);
@@ -127,7 +127,7 @@ describe('BaseController', () => {
 
   describe('noContent method', () => {
     it('should send the correct response', async () => {
-      await controller.execute(req, res);
+      await controller.execute();
       controller.callNoContent();
       expect(res.status).toHaveBeenCalledTimes(1);
       expect(res.status).toHaveBeenCalledWith(204);
@@ -138,7 +138,7 @@ describe('BaseController', () => {
 
   describe('badRequest method', () => {
     it('should send the correct response when a message is passed', async () => {
-      await controller.execute(req, res);
+      await controller.execute();
       const message = faker.random.words();
       controller.callBadRequest(message);
       expect(res.status).toHaveBeenCalledTimes(1);
@@ -148,7 +148,7 @@ describe('BaseController', () => {
     });
 
     it('should send the correct response when no message is passed', async () => {
-      await controller.execute(req, res);
+      await controller.execute();
       controller.callBadRequest();
       expect(res.status).toHaveBeenCalledTimes(1);
       expect(res.status).toHaveBeenCalledWith(400);
@@ -159,7 +159,7 @@ describe('BaseController', () => {
 
   describe('unauthorized method', () => {
     it('should send the correct response when a message is passed', async () => {
-      await controller.execute(req, res);
+      await controller.execute();
       const message = faker.random.words();
       controller.callUnauthorized(message);
       expect(res.status).toHaveBeenCalledTimes(1);
@@ -169,7 +169,7 @@ describe('BaseController', () => {
     });
 
     it('should send the correct response when no message is passed', async () => {
-      await controller.execute(req, res);
+      await controller.execute();
       controller.callUnauthorized();
       expect(res.status).toHaveBeenCalledTimes(1);
       expect(res.status).toHaveBeenCalledWith(401);
