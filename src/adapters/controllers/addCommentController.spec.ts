@@ -1,4 +1,3 @@
-import { Request, Response } from 'express';
 import faker from 'faker';
 
 import { postCommentInteractor } from '../../interactors';
@@ -7,22 +6,22 @@ import { Result } from '../../interactors/result';
 import { AddCommentController } from './addCommentController';
 import { BaseController } from './baseController';
 
+import type { Request, Response } from 'express';
+
 jest.mock('../../interactors');
 
 describe('AddCommentController', () => {
 
   let controller: AddCommentController;
-  let interactor: { execute: jest.Mock };
 
   let okSpy: jest.SpyInstance;
   let badRequestSpy: jest.SpyInstance;
   let internalServerErrorSpy: jest.SpyInstance;
 
-  beforeAll(async () => {
+  beforeAll(() => {
     okSpy = jest.spyOn(BaseController.prototype as any, 'ok');
     badRequestSpy = jest.spyOn(BaseController.prototype as any, 'badRequest');
     internalServerErrorSpy = jest.spyOn(BaseController.prototype as any, 'internalServerError');
-    interactor = await postCommentInteractor as unknown as { execute: jest.Mock };
   });
 
   it('should extend BaseController', () => {
@@ -39,7 +38,7 @@ describe('AddCommentController', () => {
     beforeEach(() => {
       req = {
         body: {},
-      } as unknown as Request;
+      } as Request;
 
       res = {
         status: jest.fn().mockReturnThis(),
@@ -52,7 +51,7 @@ describe('AddCommentController', () => {
       beforeEach(() => {
         req = {
           body: { invalidData: 'pineapple' },
-        } as unknown as Request;
+        } as Request;
         controller = new AddCommentController(req, res);
       });
 
@@ -75,14 +74,14 @@ describe('AddCommentController', () => {
         parentId = faker.datatype.number();
         req = {
           body: { postId, posterId, text, parentId },
-        } as unknown as Request;
+        } as Request;
         controller = new AddCommentController(req, res);
       });
 
       it('should call the interactor with the correct parameters', async () => {
         await controller.execute();
-        expect(interactor.execute).toHaveBeenCalledTimes(1);
-        expect(interactor.execute).toHaveBeenCalledWith({ postId, posterId, text, parentId });
+        expect(postCommentInteractor.execute).toHaveBeenCalledTimes(1);
+        expect(postCommentInteractor.execute).toHaveBeenCalledWith({ postId, posterId, text, parentId });
       });
 
       describe('when the interactor returns a successful value', () => {
@@ -90,7 +89,7 @@ describe('AddCommentController', () => {
 
         beforeEach(() => {
           value = faker.datatype.number();
-          interactor.execute.mockResolvedValue(Result.success(value));
+          (postCommentInteractor.execute as jest.Mock).mockResolvedValue(Result.success(value));
         });
 
         it('should call ok', async () => {
@@ -107,7 +106,7 @@ describe('AddCommentController', () => {
         beforeEach(() => {
           message = faker.random.words(10);
           error = new PostCommentInvalidData(message);
-          interactor.execute.mockResolvedValue(Result.fail(error));
+          (postCommentInteractor.execute as jest.Mock).mockResolvedValue(Result.fail(error));
         });
 
         it('should call badRequest', async () => {
@@ -122,7 +121,7 @@ describe('AddCommentController', () => {
 
         beforeEach(() => {
           error = new PostCommentNotAllowedtoPost();
-          interactor.execute.mockResolvedValue(Result.fail(error));
+          (postCommentInteractor.execute as jest.Mock).mockResolvedValue(Result.fail(error));
         });
 
         it('should call badRequest', async () => {
@@ -139,7 +138,7 @@ describe('AddCommentController', () => {
         beforeEach(() => {
           message = faker.random.words(10);
           error = Error(message);
-          interactor.execute.mockResolvedValue(Result.fail(error));
+          (postCommentInteractor.execute as jest.Mock).mockResolvedValue(Result.fail(error));
         });
 
         it('should call badRequest', async () => {

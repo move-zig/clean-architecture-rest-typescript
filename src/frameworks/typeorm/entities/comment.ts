@@ -1,6 +1,9 @@
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import typeorm from 'typeorm';
+
 import { Post } from './post';
 import { Poster } from './poster';
+
+const { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } = typeorm;
 
 @Entity()
 export class Comment {

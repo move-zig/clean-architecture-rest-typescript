@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model comment {
+  id            Int       @id @default(autoincrement())
+  posterId      Int
+  parentId      Int?
+  text          String
+  postId        Int
+  comment       comment?  @relation("commentTocomment_parentId", fields: [parentId], references: [id])
+  post          post      @relation(fields: [postId], references: [id])
+  poster        poster    @relation(fields: [posterId], references: [id])
+  other_comment comment[] @relation("commentTocomment_parentId")
+
+  @@index([posterId], name: "FK_8f64ee593d3709eee7775f9c462")
+  @@index([postId], name: "FK_94a85bb16d24033a2afdd5df060")
+  @@index([parentId], name: "FK_e3aebe2bd1c53467a07109be596")
+}
+
+model post {
+  id       Int       @id @default(autoincrement())
+  posterId Int
+  text     String    @db.LongText
+  poster   poster    @relation(fields: [posterId], references: [id])
+  comment  comment[]
+
+  @@index([posterId], name: "FK_fd91f9bffb081d0f822ea655985")
+}
+
+model poster {
+  id         Int       @id @default(autoincrement())
+  signUpDate DateTime  @db.Date
+  disabled   Boolean   @default(false)
+  name       String
+  comment    comment[]
+  post       post[]
+}
+

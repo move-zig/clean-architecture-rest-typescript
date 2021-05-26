@@ -1,8 +1,6 @@
-import { Connection, Repository as TypeOrmRepository } from 'typeorm';
-
 import { PersistedPoster } from '../../domain/persistedPoster';
-import { Poster as PosterEntity } from '../../frameworks/typeorm/entities/poster';
 import { RepositoryError } from './repositoryError';
+import type { poster as PosterEntity, PrismaClient } from '.prisma/client';
 
 export interface IPosterRepository {
   load: (posterId: number) => Promise<PersistedPoster | undefined>;
@@ -10,20 +8,15 @@ export interface IPosterRepository {
 
 export class PosterRepository implements IPosterRepository {
 
-  private readonly posterRepository: TypeOrmRepository<PosterEntity>;
-
-  public constructor(connection: Connection) {
-    this.posterRepository = connection.getRepository(PosterEntity);
-  }
+  public constructor(private readonly prisma: PrismaClient) { /* empty */ }
 
   public async load(posterId: number): Promise<PersistedPoster | undefined> {
-    let posterEntity: PosterEntity | undefined;
+    let posterEntity: PosterEntity | null;
     try {
-      posterEntity = await this.posterRepository.findOne(posterId);
+      posterEntity = await this.prisma.poster.findUnique({ where: { id: posterId } });
     } catch (err) {
       throw new RepositoryError('could not load comment');
     }
-    console.log(posterEntity);
     if (posterEntity) {
       return new PersistedPoster({
         id: posterEntity.id,

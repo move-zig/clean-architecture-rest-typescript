@@ -1,4 +1,5 @@
 import winston from 'winston';
+
 import { ILogger } from '.';
 
 export class WinstonLogger implements ILogger {

@@ -1,4 +1,4 @@
 import 'reflect-metadata';
-import { createConnection } from 'typeorm';
+import typeorm from 'typeorm';
 
-export const connection = createConnection();
+export const connection = typeorm.createConnection();

@@ -1,5 +1,8 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import typeorm from 'typeorm';
+
 import { Comment } from './comment';
+
+const { Column, Entity, OneToMany, PrimaryGeneratedColumn } = typeorm;
 
 @Entity()
 export class Poster {

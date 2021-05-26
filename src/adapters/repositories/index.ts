@@ -1,8 +1,9 @@
-import { connection } from '../../frameworks/typeorm';
+import { PrismaClient } from '@prisma/client';
+
 import { CommentRepository } from './commentRepository';
 import { PosterRepository } from './posterRepository';
 
-export const repositories = connection.then(c => ({
-  posterRepository: new PosterRepository(c),
-  commentRepository: new CommentRepository(c),
-}));
+const prisma = new PrismaClient();
+
+export const posterRepository = new PosterRepository(prisma);
+export const commentRepository = new CommentRepository(prisma);

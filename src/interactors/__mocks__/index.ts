@@ -1,17 +1,13 @@
 import { Result } from '../result';
 
-const mockPostCommentInteractor = jest.fn().mockImplementation(() => ({
+export const postCommentInteractor = {
   execute: jest.fn().mockResolvedValue(Result.success(undefined)),
-}));
+};
 
-const mockGetCommentInteractor = jest.fn().mockImplementation(() => ({
+export const getCommentInteractor = {
   execute: jest.fn().mockResolvedValue(Result.success(undefined)),
-}));
+};
 
-const mockGetAllCommentsByPosterInteractor = jest.fn().mockImplementation(() => ({
+export const getAllCommentsByPosterInteractor = {
   execute: jest.fn().mockResolvedValue(Result.success(undefined)),
-}));
-
-export const postCommentInteractor = Promise.resolve(mockPostCommentInteractor());
-export const getCommentInteractor = Promise.resolve(mockGetCommentInteractor());
-export const getAllCommentsByPosterInteractor = Promise.resolve(mockGetAllCommentsByPosterInteractor());
+};

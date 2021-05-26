@@ -1,6 +1,6 @@
 import faker from 'faker';
-import { PersistedComment } from '../domain/persistedComment';
 
+import { PersistedComment } from '../domain/persistedComment';
 import { GetAllCommentsByPosterInteractor, GetAllCommentsByPosterNotFound, GetAllCommentsByPosterRequestDTO, GetAllCommentsByPosterResponseDTO } from './getAllCommentsByPoster';
 import { IErrorResult, ISuccessResult } from './result';
 

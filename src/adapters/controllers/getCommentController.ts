@@ -23,8 +23,7 @@ export class GetCommentController extends BaseController<GetCommentRequestDTO> {
   }
 
   protected async executeImpl(requestDTO: GetCommentRequestDTO): Promise<void> {
-    const interactor = await getCommentInteractor;
-    const result = await interactor.execute(requestDTO);
+    const result = await getCommentInteractor.execute(requestDTO);
 
     if (result.success) {
       this.ok(result.value);

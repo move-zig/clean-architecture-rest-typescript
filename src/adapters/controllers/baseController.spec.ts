@@ -1,7 +1,8 @@
-import { Request, Response } from 'express';
 import faker from 'faker';
 
 import { BaseController } from './baseController';
+
+import type { Request, Response } from 'express';
 
 type RequestDTO = {
   color: string;
@@ -17,6 +18,7 @@ class MockController extends BaseController<RequestDTO> {
     return Promise.resolve(false);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async executeImpl(requestDTO: RequestDTO): Promise<void> {
     return Promise.resolve(undefined);
   }

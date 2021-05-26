@@ -23,8 +23,7 @@ export class GetAllCommentsByPosterController extends BaseController<GetAllComme
   }
 
   protected async executeImpl(requestDTO: GetAllCommentsByPosterRequestDTO): Promise<void> {
-    const interactor = await getAllCommentsByPosterInteractor;
-    const result = await interactor.execute(requestDTO);
+    const result = await getAllCommentsByPosterInteractor.execute(requestDTO);
 
     if (result.success) {
       this.ok(result.value);

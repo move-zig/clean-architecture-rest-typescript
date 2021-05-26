@@ -26,8 +26,7 @@ export class AddCommentController extends BaseController<PostCommentRequestDTO> 
   }
 
   protected async executeImpl(requestDTO: PostCommentRequestDTO): Promise<void> {
-    const interactor = await postCommentInteractor;
-    const result = await interactor.execute(requestDTO);
+    const result = await postCommentInteractor.execute(requestDTO);
 
     if (result.success) {
       this.ok(result.value);
