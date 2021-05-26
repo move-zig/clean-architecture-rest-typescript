@@ -1,4 +1,4 @@
-import * as yup from 'yup';
+import yup from 'yup';
 
 import { getAllCommentsByPosterInteractor } from '../../interactors';
 import { GetAllCommentsByPosterNotFound, GetAllCommentsByPosterRequestDTO } from '../../interactors/getAllCommentsByPoster';

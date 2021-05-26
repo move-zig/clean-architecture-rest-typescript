@@ -1,4 +1,4 @@
-import * as yup from 'yup';
+import yup from 'yup';
 
 import { postCommentInteractor } from '../../interactors';
 import { PostCommentInvalidData, PostCommentNotAllowedtoPost, PostCommentRequestDTO } from '../../interactors/postCommentInteractor';

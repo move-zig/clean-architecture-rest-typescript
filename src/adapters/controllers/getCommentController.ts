@@ -1,4 +1,4 @@
-import * as yup from 'yup';
+import yup from 'yup';
 
 import { getCommentInteractor } from '../../interactors';
 import { GetCommentNotFound, GetCommentRequestDTO } from '../../interactors/getCommentInteractor';
