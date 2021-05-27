@@ -11,8 +11,8 @@ export class AddCommentController extends BaseController<PostCommentRequestDTO> 
       const schema: yup.SchemaOf<PostCommentRequestDTO> = yup.object({
         postId: yup.number().positive().defined(),
         posterId: yup.number().positive().defined(),
-        text: yup.string().defined(),
-        parentId: yup.number(),
+        text: yup.string().defined().max(1024),
+        parentId: yup.number().positive(),
       });
       return await schema.validate(this.req.body);
     } catch (error: unknown) {

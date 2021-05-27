@@ -17,4 +17,8 @@ export class PersistedComment extends Comment implements IComment {
 
   public get id(): number { return this.#id; }
   public get children(): PersistedComment[] | undefined { return this.#children; }
+
+  public equals(otherComment: IPersistedComment): boolean {
+    return this.#id === otherComment.id;
+  }
 }
