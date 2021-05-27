@@ -10,7 +10,8 @@
     "test": "jest",
     "build": "tsc",
     "lint": "eslint --ext .ts src",
-    "start": "node dist/frameworks/express/"
+    "start": "node dist/frameworks/express/",
+    "prisma:generate": "prisma generate"
   },
   "keywords": [],
   "author": "Dave Welsh",
