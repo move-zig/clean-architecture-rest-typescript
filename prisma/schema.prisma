@@ -13,10 +13,10 @@ model comment {
   parentId      Int?
   text          String
   postId        Int
-  comment       comment?  @relation("commentTocomment_parentId", fields: [parentId], references: [id])
+  parent       comment?  @relation("commentTocomment_parentId", fields: [parentId], references: [id])
   post          post      @relation(fields: [postId], references: [id])
   poster        poster    @relation(fields: [posterId], references: [id])
-  other_comment comment[] @relation("commentTocomment_parentId")
+  children      comment[] @relation("commentTocomment_parentId")
 
   @@index([posterId], name: "FK_8f64ee593d3709eee7775f9c462")
   @@index([postId], name: "FK_94a85bb16d24033a2afdd5df060")
