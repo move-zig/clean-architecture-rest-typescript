@@ -11,7 +11,7 @@ export class GetCommentController extends BaseController<GetCommentRequestDTO> {
       const schema: yup.SchemaOf<GetCommentRequestDTO> = yup.object({
         commentId: yup.number().positive().defined(),
       });
-      return await schema.validate(this.req.query);
+      return await schema.validate(this.req.params);
     } catch (error: unknown) {
       if (error instanceof Error) {
         this.badRequest(error.message);
