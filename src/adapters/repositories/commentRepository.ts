@@ -1,7 +1,7 @@
 import { Comment } from '../../domain/comment';
 import { PersistedComment } from '../../domain/persistedComment';
 import { RepositoryError } from './repositoryError';
-import type { comment as CommentEntity, poster as PosterEntity, PrismaClient } from '.prisma/client';
+import type { PrismaClient } from '.prisma/client';
 
 /** Couldn't find the post when adding a comment */
 export class CommentRepositoryAddPostNotFound extends Error { }
@@ -22,7 +22,7 @@ export class CommentRepository implements ICommentRepository {
   public constructor(private readonly prisma: PrismaClient) { /* empty */ }
 
   public async load(commentId: number): Promise<PersistedComment | undefined> {
-    let commentEntity: CommentEntity | null;
+    let commentEntity;
     try {
       commentEntity = await this.prisma.comment.findUnique({ where: { id: commentId } });
     } catch (err) {
@@ -40,9 +40,12 @@ export class CommentRepository implements ICommentRepository {
   }
 
   public async loadWithChildren(commentId: number): Promise<PersistedComment | undefined> {
-    let commentEntity: CommentEntity | null;
+    let commentEntity;
     try {
-      commentEntity = await this.prisma.comment.findUnique({ where: { id: commentId } });
+      commentEntity = await this.prisma.comment.findUnique({
+        where: { id: commentId },
+        include: { children: true },
+      });
     } catch (err) {
       throw new RepositoryError('could not load comment');
     }
@@ -53,13 +56,13 @@ export class CommentRepository implements ICommentRepository {
         posterId: commentEntity.posterId,
         text: commentEntity.text,
         parentId: commentEntity.parentId ?? undefined,
-        // children: commentEntity.children?.map(c => ({
-        //   id: c.id,
-        //   postId: c.postId,
-        //   posterId: c.posterId,
-        //   text: c.text,
-        //   parentId: c.parentId ?? undefined,
-        // })),
+        children: commentEntity.children?.map(c => ({
+          id: c.id,
+          postId: c.postId,
+          posterId: c.posterId,
+          text: c.text,
+          parentId: c.parentId ?? undefined,
+        })),
       });
     }
   }
@@ -84,7 +87,7 @@ export class CommentRepository implements ICommentRepository {
       }
     }
 
-    let saved: CommentEntity;
+    let saved;
     try {
       saved = await this.prisma.comment.create({
         data: {
@@ -108,14 +111,14 @@ export class CommentRepository implements ICommentRepository {
   }
 
   public async loadAllByPoster(posterId: number): Promise<PersistedComment[] | undefined> {
-    let posterEntity: PosterEntity | null;
+    let posterEntity;
     try {
       posterEntity = await this.prisma.poster.findUnique({ where: { id: posterId } });
     } catch (err) {
       throw new RepositoryError('could not load poster');
     }
     if (posterEntity) {
-      let commentEntities: CommentEntity[];
+      let commentEntities;
       try {
         commentEntities = await this.prisma.comment.findMany({ where: { posterId } });
       } catch (err) {
