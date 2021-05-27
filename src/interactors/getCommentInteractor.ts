@@ -43,12 +43,8 @@ export class GetCommentInteractor implements IInteractor<GetCommentRequestDTO, G
         })),
       });
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        this.logger.error('error getting comment', err);
-        return Result.fail(err);
-      }
       this.logger.error('error getting comment', err);
-      return Result.fail(Error('unknown error'));
+      return Result.fail(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

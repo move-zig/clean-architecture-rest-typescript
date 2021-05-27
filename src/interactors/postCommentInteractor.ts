@@ -59,13 +59,10 @@ export class PostCommentInteractor implements IInteractor<PostCommentRequestDTO,
             return Result.fail(new PostCommentInvalidData('Poster not found'));
           case CommentRepositoryAddParentNotFound:
             return Result.fail(new PostCommentInvalidData('Parent not found'));
-          default:
-            this.logger.error('error adding comment', err);
-            return Result.fail(err);
         }
       }
       this.logger.error('error adding comment', err);
-      return Result.fail(Error('unknown error'));
+      return Result.fail(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }

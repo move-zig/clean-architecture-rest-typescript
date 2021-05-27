@@ -39,12 +39,8 @@ export class GetAllCommentsByPosterInteractor implements IInteractor<GetAllComme
       }));
       return Result.success(value);
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        this.logger.error('error getting all comments by poster', err);
-        return Result.fail(err);
-      }
       this.logger.error('error getting all comments by poster', err);
-      return Result.fail(Error('unknown error'));
+      return Result.fail(err instanceof Error ? err : Error('unknown error'));
     }
   }
 }
