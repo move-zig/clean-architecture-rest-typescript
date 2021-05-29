@@ -1,4 +1,4 @@
-# Inerface Adapters Layer
+# Interface Adapters Layer
 
 This is the layer between the [Use Case Interactors](../interactors/index.md) and [Frameworks and Drivers](../frameworks/index.md) layers. Objects from the Frameworks and Drivers layers must be injected, while use case interactors and domain entities can be used directly.
 
